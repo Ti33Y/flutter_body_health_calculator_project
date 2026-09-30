@@ -8,6 +8,13 @@ class BmiUi extends StatefulWidget {
 }
 
 class _BmiUiState extends State<BmiUi> {
+  //สร้างัวแปลควบคุมเทคฟิว
+  TextEditingController _weightCtrl =TextEditingController();
+  TextEditingController _hightCtrl =TextEditingController();
+
+double _bmi = 0;
+String _result = "การแปลผล";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,6 +68,7 @@ class _BmiUiState extends State<BmiUi> {
                 SizedBox(
                   height: 48,
                   child: TextField(
+                    controller: _weightCtrl,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       hintText: 'กรอกน้ำหนักของคุณ',
@@ -97,6 +105,7 @@ class _BmiUiState extends State<BmiUi> {
                 SizedBox(
                   height: 48,
                   child: TextField(
+                    controller: _hightCtrl,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       hintText: 'กรอกส่วนสูงของคุณ',
@@ -121,7 +130,48 @@ class _BmiUiState extends State<BmiUi> {
                   width: double.infinity,
                   height: 46,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // ป้อมครบมั้ย
+                      if(_weightCtrl.text.isEmpty){
+                        ScaffoldMessenger.of(context).showSnackBar
+                        (SnackBar(
+                          content: Text('การุณากรอกน้ำหนัก'),
+                          backgroundColor: Colors.red),
+                        );
+                        return;
+                      }
+
+                      // ป้อมครบมั้ย
+                      if(_hightCtrl.text.isEmpty){
+                        ScaffoldMessenger.of(context).showSnackBar
+                        (SnackBar(
+                          content: Text('การุณากรอกส่วนสูง'),
+                          backgroundColor: Colors.red),
+                        );
+                        return;
+                      }  
+
+                      //แปลงค่าคำนวณ
+                      double w = double.parse(_weightCtrl.text);
+                      double h = double.parse(_hightCtrl.text);
+                      
+                      // แสดดงผลใช้ setState
+                      setState(() {
+                        _bmi = w / ((h/100)*(h/100));
+                      });
+
+                      if(_bmi < 18.5){
+                        _result = "ผอม";
+                      }else if(_bmi < 22.9){
+                        _result = "ปกติ";
+                      }else if(_bmi < 24.9){
+                        _result = "อ้วน1";
+                      }else if(_bmi < 29.9){
+                        _result = "อ้วน2";
+                      }  
+  
+
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFF5722),
                       foregroundColor: Colors.white,
@@ -147,7 +197,15 @@ class _BmiUiState extends State<BmiUi> {
                   width: double.infinity,
                   height: 46,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      //ลบค่า bmi result
+                      setState(() {
+                        _weightCtrl.text = '';
+                        _hightCtrl.text = '';
+                        _bmi =0;
+                        _result ='การ';
+                      });
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFB8B8BE),
                       foregroundColor: Colors.white,
@@ -188,7 +246,7 @@ class _BmiUiState extends State<BmiUi> {
                         ),
 
                         Text(
-                          '--',
+                          _bmi.toStringAsFixed(2),
                           style: TextStyle(
                             fontSize: 35,
                             fontWeight: FontWeight.bold,
@@ -197,7 +255,7 @@ class _BmiUiState extends State<BmiUi> {
                         ),
 
                         Text(
-                          'ผลลัพธ์',
+                          _result,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
